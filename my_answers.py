@@ -34,17 +34,12 @@ class NeuralNetwork(object):
         delta_weights_h_o = np.zeros(self.weights_hidden_to_output.shape)
         for X, y in zip(features, targets):
             
-            final_outputs, hidden_outputs = self.forward_pass_train(X)  # Implement the forward pass function below
-            # Implement the backproagation function below
+            final_outputs, hidden_outputs = self.forward_pass_train(X)
+
             delta_weights_i_h, delta_weights_h_o = self.backpropagation(final_outputs, hidden_outputs, X, y, 
                                                                         delta_weights_i_h, delta_weights_h_o)
-            
-        print("\n\n\n")
-        print("weights_input_to_hidden: ", self.weights_input_to_hidden)
-        print("weights_hidden_to_output: ", self.weights_hidden_to_output)
+     
         self.update_weights(delta_weights_i_h, delta_weights_h_o, n_records)
-        print("weights_input_to_hidden: ", self.weights_input_to_hidden)
-        print("weights_hidden_to_output: ", self.weights_hidden_to_output)
         
         
     def forward_pass_train(self, X):
@@ -55,18 +50,16 @@ class NeuralNetwork(object):
             X: features batch
 
         '''
-        #### Implement the forward pass here ####
         ### Forward pass ###
-        # TODO: Hidden layer - Replace these values with your calculations.
         hidden_inputs = np.dot(X, self.weights_input_to_hidden) # signals into hidden layer
         hidden_outputs = self.activation_function(hidden_inputs) # signals from hidden layer
 
-        # TODO: Output layer - Replace these values with your calculations.
         final_inputs = np.dot(hidden_outputs, self.weights_hidden_to_output) # signals into final output layer
-        final_outputs = self.activation_function(final_inputs) # signals from final output layer
+        final_outputs = final_inputs # signals from final output layer
         
         return final_outputs, hidden_outputs
 
+    
     def backpropagation(self, final_outputs, hidden_outputs, X, y, delta_weights_i_h, delta_weights_h_o):
         ''' Implement backpropagation
          
@@ -76,59 +69,23 @@ class NeuralNetwork(object):
             y: target (i.e. label) batch
             delta_weights_i_h: change in weights from input to hidden layers
             delta_weights_h_o: change in weights from hidden to output layers
-
         '''
-        #### Implement the backward pass here ####
         ### Backward pass ###
-
-        # TODO: Output error - Replace this value with your calculations.
-        print("\n\nerror:\ny - final_outputs")
-        print(y, " - ", final_outputs, " = ", y-final_outputs)
-        error = y - final_outputs # Output layer error is the difference between desired target and actual output.
-        
-        # TODO: Backpropagated error terms - Replace these values with your calculations.
-        print("\n\noutput_error_term:\nerror * final_outputs * (1-final_outputs)")
-        print(error, " * ", final_outputs, " * ",(1-final_outputs), " = ", error * final_outputs * (1-final_outputs))
-        output_error_term = error * final_outputs * (1-final_outputs)
+        output_error = y - final_outputs # Output layer error is the difference between desired target and actual output.
+               
+        output_error_term = output_error * 1 # Since the the output function is equal to input the derivative = 1 
            
-        # TODO: Calculate the hidden layer's contribution to the error
-        print("\n\nhidden_error:\nnp.dot(self.weights_hidden_to_output, output_error_term) * hidden_outputs * (1-hidden_outputs)")
-        print(self.weights_hidden_to_output, " o ", output_error_term," * ", hidden_outputs, " * ",(1-hidden_outputs), " = ", np.dot(self.weights_hidden_to_output, output_error_term) * hidden_outputs * (1-hidden_outputs))
-        hidden_error = np.dot(self.weights_hidden_to_output, output_error_term) * hidden_outputs * (1-hidden_outputs)
-        
-        
-        print("\n\nhidden_error_term:\nhidden_error * hidden_outputs * (1-hidden_outputs)")
-        print(hidden_error, " * ", hidden_outputs, " * ",(1-hidden_outputs), " = ", hidden_error * hidden_outputs * (1-hidden_outputs))
+        hidden_error = np.dot(self.weights_hidden_to_output, output_error_term) 
+
         hidden_error_term = hidden_error * hidden_outputs * (1-hidden_outputs)
         
         
         # Weight step (input to hidden)
-        print("\n\nhidden_error_term:\nhidden_error_term * X[:, None]")
-        print("hidden_error_term.shape:", hidden_error_term.shape) 
-        print("X[:, None].shape:", X[:, None].shape) 
-        print("delta_weights_i_h.shape:", delta_weights_i_h.shape) 
-        print(hidden_error_term , " * ", X[:, None], " = ", hidden_error_term * X[:, None])
-        print("(hidden_error_term * X[:, None]).shape:", (hidden_error_term * X[:, None]).shape) 
-        
         delta_weights_i_h += hidden_error_term * X[:, None]
-        
-        print("delta_weights_i_h:", delta_weights_i_h) 
-        print("delta_weights_i_h.shape:", delta_weights_i_h.shape) 
-
-        
+     
         # Weight step (hidden to output)
-        print("\n\ndelta_weights_h_o:\noutput_error_term * hidden_outputs[:, None]")
-        print("output_error_term.shape:", output_error_term.shape) 
-        print("hidden_outputs[:, None].shape:", hidden_outputs[:, None].shape) 
-        print("delta_weights_h_o.shape:", delta_weights_h_o.shape) 
-        print(output_error_term, " * ", hidden_outputs[:, None]," = ", output_error_term * hidden_outputs[:, None])
-        print("delta_weights_h_o.shape:", delta_weights_h_o.shape) 
-        
         delta_weights_h_o += output_error_term * hidden_outputs[:, None]
 
-        print("delta_weights_h_o:", delta_weights_h_o) 
-        print("delta_weights_h_o.shape:", delta_weights_h_o.shape) 
-        
         return delta_weights_i_h, delta_weights_h_o
 
     def update_weights(self, delta_weights_i_h, delta_weights_h_o, n_records):
@@ -158,21 +115,159 @@ class NeuralNetwork(object):
         '''
         
         #### Implement the forward pass here ####
-        # TODO: Hidden layer - replace these values with the appropriate calculations.
         hidden_inputs = np.dot(features, self.weights_input_to_hidden) # signals into hidden layer
         hidden_outputs = self.activation_function(hidden_inputs) # signals from hidden layer
         
-        # TODO: Output layer - Replace these values with the appropriate calculations.
         final_inputs = np.dot(hidden_outputs, self.weights_hidden_to_output) # signals into final output layer
-        final_outputs = self.activation_function(final_inputs) # signals from final output layer 
+        final_outputs = final_inputs #self.activation_function(final_inputs) # signals from final output layer 
         
         return final_outputs
 
-
+# # Original Hyperparameters
 #########################################################
 # Set your hyperparameters here
 ##########################################################
-iterations = 100
-learning_rate = 0.1
-hidden_nodes = 2
+# iterations = 100
+# learning_rate = 0.1
+# hidden_nodes = 2
+# output_nodes = 1
+
+
+# # Test 1
+# #########################################################
+# # Set your hyperparameters here
+# ##########################################################
+# iterations = 100
+# learning_rate = 0.1
+# hidden_nodes = 4
+# output_nodes = 1
+
+
+# # Test 2
+# # Progress: 100.0% ... Training loss: 0.693 ... Validation loss: 1.182
+# #########################################################
+# # Set your hyperparameters here
+# ##########################################################
+# iterations = 100
+# learning_rate = 0.1
+# hidden_nodes = 6
+# output_nodes = 1
+
+
+# # Test 3
+# # Progress: 100.0% ... Training loss: 0.303 ... Validation loss: 0.476
+# #########################################################
+# # Set your hyperparameters here
+# ##########################################################
+# iterations = 1000
+# learning_rate = 0.1
+# hidden_nodes = 6
+# output_nodes = 1
+
+
+# # Test 4
+# # Progress: 100.0% ... Training loss: 0.257 ... Validation loss: 0.422
+# #########################################################
+# # Set your hyperparameters here
+# ##########################################################
+# iterations = 3000
+# learning_rate = 0.1
+# hidden_nodes = 6
+# output_nodes = 1
+
+
+# # Test 5
+# # Progress: 100.0% ... Training loss: 0.181 ... Validation loss: 0.341
+# #########################################################
+# # Set your hyperparameters here
+# ##########################################################
+# iterations = 6000
+# learning_rate = 0.1
+# hidden_nodes = 6
+# output_nodes = 1
+
+
+# # Test 6
+# # Progress: 100.0% ... Training loss: 0.088 ... Validation loss: 0.208
+# #########################################################
+# # Set your hyperparameters here
+# ##########################################################
+# iterations = 15000
+# learning_rate = 0.1
+# hidden_nodes = 6
+# output_nodes = 1
+
+
+# # Test 7
+# # Progress: 100.0% ... Training loss: 0.054 ... Validation loss: 0.139
+# #########################################################
+# # Set your hyperparameters here
+# ##########################################################
+# iterations = 45000
+# learning_rate = 0.1
+# hidden_nodes = 6
+# output_nodes = 1
+
+
+# # Test 8
+# # Progress: 100.0% ... Training loss: 0.227 ... Validation loss: 0.392
+# #########################################################
+# # Set your hyperparameters here
+# ##########################################################
+# iterations = 45000
+# learning_rate = 0.01
+# hidden_nodes = 6
+# output_nodes = 1
+
+
+# # Test 9
+# # Progress: 100.0% ... Training loss: 0.304 ... Validation loss: 0.485
+# #########################################################
+# # Set your hyperparameters here
+# ##########################################################
+# iterations = 10000
+# learning_rate = 0.01
+# hidden_nodes = 6
+# output_nodes = 1
+
+
+# # Test 10
+# # Progress: 100.0% ... Training loss: 0.056 ... Validation loss: 0.152
+# #########################################################
+# # Set your hyperparameters here
+# ##########################################################
+# iterations = 10000
+# learning_rate = 1
+# hidden_nodes = 6
+# output_nodes = 1
+
+
+# # Test 11
+# # Progress: 100.0% ... Training loss: 0.057 ... Validation loss: 0.155
+# #########################################################
+# # Set your hyperparameters here
+# ##########################################################
+# iterations = 10000
+# learning_rate = 0.75
+# hidden_nodes = 6
+# output_nodes = 1
+
+
+# Test 12
+# Progress: 100.0% ... Training loss: 0.055 ... Validation loss: 0.156
+#########################################################
+# Set your hyperparameters here
+##########################################################
+iterations = 10000
+learning_rate = 0.5
+hidden_nodes = 6
 output_nodes = 1
+
+
+
+
+
+
+
+
+
